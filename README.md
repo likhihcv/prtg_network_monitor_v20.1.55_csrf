@@ -94,5 +94,10 @@ Since this version is vulnerable to stored XSS, XSS can be leverged to CSRF and 
 ![5after](https://user-images.githubusercontent.com/36541248/122038971-3aa58e80-cde7-11eb-908a-78bdfa40b638.png)
 
 
+### Tested on  20.1.55.1775+ and 21.2.68.1492+   
 
+![uasi_version](https://user-images.githubusercontent.com/36541248/122043872-e6051200-cdec-11eb-812e-70b27e31319d.png)
+
+
+![image](https://user-images.githubusercontent.com/36541248/122044072-22d10900-cded-11eb-90cd-35d72a25bd6e.png)
 
