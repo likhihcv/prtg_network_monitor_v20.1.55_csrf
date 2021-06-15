@@ -21,6 +21,7 @@ To exploit this vulnerability normal user can simply create a HTML form that wou
 
 Any action can be performed on behalf of logged in user but for demonstration user account privilege escalation is shown as example
 
+### Chaining XSS to CSRF
 
 1. Create a CSRF payload as following
 ```javascript
